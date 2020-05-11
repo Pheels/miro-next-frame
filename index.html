@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/javascript" src="https://miro.com/app/static/sdk.1.1.js"></script>
+    <script src="https://miro.com/app/static/boardsPicker.1.0.js"></script>
+    <script type="text/javascript" src="NextFrame.js"></script>
+    <script type="text/javascript">
+    const underlineIcon = '<line x1="22" y1="22" x2="00" y2="22" stroke="currentColor" stroke-width="2"></line>'
+
+
+    miro.onReady(() => {
+        miro.initialize({
+            extensionPoints: {
+                getWidgetMenuItems: (widgets) => {
+                    return Promise.resolve({
+                        tooltip: 'Underline',
+                        svgIcon: underlineIcon,
+                        onClick: (widgets) => {
+                            let widget = miro.board.widgets.get();
+                            underline(widget)
+                        }
+
+                    })
+                }
+            }
+        })
+    })
+    function underline(widget) {
+        widget.then(function(result) {
+            console.log(result[0]);
+            var textEdit = result[0]['text'];
+            if (textEdit.includes("<u>")) {
+                textEdit = textEdit.replace("<u>", "").replace("</u>", "");
+            } else {
+                textEdit = "<u>" + textEdit + "</u>"
+            }
+            miro.board.widgets.update({
+                id: result[0]['id'],
+                text: textEdit
+            })
+        });
+    }
+
+    </script>
+</head>
+</html>
