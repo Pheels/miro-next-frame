@@ -18,11 +18,28 @@ miro.onReady(() => {
 })
 
 async function nextFrame(){
-  let widgets = await miro.board.widgets.get({type: "FRAME"});
-  let i = 0;
-  while (i < widgets.length) {
-    console.log(widgets[i]);
-    i++;
+  let frames = await miro.board.widgets.get({type: "FRAME"});
+  let currentFrame = await miro.board.selection.get();
+  if (currentFrame.length == 0  || !currentFrame){
+    currentFrame = 0;
+    console.log("current widget 0")
+    miro.board.viewport.zoomToObject(frames[0]['id'])
+    miro.board.selection.selectWidgets(frames[0])
+  } else {
+    for (var i = 0; i < frames.length; i ++){
+      // case for end of frames array
+      if (i == frames.length -1){
+
+        miro.board.viewport.zoomToObject(frames[0]['id'])
+        miro.board.selection.selectWidgets(frames[0])
+      // current selected widget is found
+      } else if (frames[i]['id'] == currentFrame[0]['id']) {
+
+        miro.board.viewport.zoomToObject(frames[i+1]['id'])
+        miro.board.selection.selectWidgets(frames[i+1])
+        return;
+      }
+    }
   }
-  miro.board.viewport.zoomToObject(widgets[1]['id'])
+
 }

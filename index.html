@@ -17,7 +17,7 @@
                         tooltip: 'Underline',
                         svgIcon: underlineIcon,
                         onClick: (widgets) => {
-                            let widget = miro.board.widgets.get();
+                            let widget = miro.board.selection.get();
                             underline(widget)
                         }
 
