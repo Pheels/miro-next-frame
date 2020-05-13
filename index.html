@@ -4,42 +4,48 @@
 <head>
     <script type="text/javascript" src="https://miro.com/app/static/sdk.1.1.js"></script>
     <script src="https://miro.com/app/static/boardsPicker.1.0.js"></script>
-    <script type="text/javascript" src="nextFrame.js"></script>
     <script type="text/javascript">
-    const underlineIcon = '<line x1="22" y1="22" x2="00" y2="22" stroke="currentColor" stroke-width="2"></line>'
-
+    const nextFrameIcon = `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 94.03 24.04"><defs><style>.cls-1{fill:#757575;}</style></defs><title>Artboard 13</title><path class="cls-1" d="M21.85.22V24.08H15L7.53,11.17,5.72,7.63h0L5.83,12v12H.34V.22h6.9l7.42,12.91,1.8,3.54h0l-.14-4.41V.22Z"/><path class="cls-1" d="M27.13,24.08V.22H45.72V5H33.35V9.87h9.84v4.52H33.35v4.88H46.19v4.81Z"/><path class="cls-1" d="M71,24.08H63.59L59.1,16.45l-4.34,7.63h-7l8.1-12L48.18.22h7.34l4.09,7.3L63.73.22h6.76L62.86,11.9Z"/><path class="cls-1" d="M94,.22V5H86.23v19H80V5H72.19V.22Z"/></svg>`
 
     miro.onReady(() => {
         miro.initialize({
             extensionPoints: {
-                getWidgetMenuItems: (widgets) => {
-                    return Promise.resolve({
-                        tooltip: 'Underline',
-                        svgIcon: underlineIcon,
-                        onClick: (widgets) => {
-                            let widget = miro.board.selection.get();
-                            underline(widget)
-                        }
-
-                    })
-                }
+              bottomBar: async () => {
+                   return {
+                     title: 'Next Frame',
+                     svgIcon: nextFrameIcon,
+                     onClick: nextFrame
+                   }
+               }
             }
         })
     })
-    function underline(widget) {
-        widget.then(function(result) {
-            console.log(result[0]);
-            var textEdit = result[0]['text'];
-            if (textEdit.includes("<u>")) {
-                textEdit = textEdit.replace("<u>", "").replace("</u>", "");
-            } else {
-                textEdit = "<u>" + textEdit + "</u>"
-            }
-            miro.board.widgets.update({
-                id: result[0]['id'],
-                text: textEdit
-            })
-        });
+
+    async function nextFrame(){
+      let frames = await miro.board.widgets.get({type: "FRAME"});
+      let currentFrame = await miro.board.selection.get();
+      if (currentFrame.length == 0  || !currentFrame){
+        currentFrame = 0;
+        console.log("current widget 0")
+        miro.board.viewport.zoomToObject(frames[0]['id'])
+        miro.board.selection.selectWidgets(frames[0])
+      } else {
+        for (var i = 0; i < frames.length; i ++){
+          // case for end of frames array
+          if (i == frames.length -1){
+
+            miro.board.viewport.zoomToObject(frames[0]['id'])
+            miro.board.selection.selectWidgets(frames[0])
+          // current selected widget is found
+          } else if (frames[i]['id'] == currentFrame[0]['id']) {
+
+            miro.board.viewport.zoomToObject(frames[i+1]['id'])
+            miro.board.selection.selectWidgets(frames[i+1])
+            return;
+          }
+        }
+      }
+
     }
 
     </script>
